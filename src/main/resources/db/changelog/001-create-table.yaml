@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001
+      author: Berk-Cinek
+      preConditions:
+        - dbms:
+            type: postgresql
+      changes:
+        - createTable:
+            tableName: url_entity
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: url
+                  type: VARCHAR(300)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uc_short_url
+              - column:
+                  name: short_url
+                  type: Varchar(100)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+              - column:
+                  name: access_count
+                  type: INTEGER
+        - createSequence:
+            sequenceName: url_sequence
+            startValue: 1
+            incrementBy: 10

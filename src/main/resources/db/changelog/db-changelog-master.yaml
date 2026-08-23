@@ -1,0 +1,3 @@
+dataBaseChangeLog:
+  -include:
+    file: /src/main/resources/db/changelog/001-create-table.yaml
