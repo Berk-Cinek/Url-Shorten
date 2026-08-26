@@ -18,4 +18,5 @@ public interface UrlShortenService {
 
     void delete(Long id);
 
+    Boolean isExist(Long id);
 }

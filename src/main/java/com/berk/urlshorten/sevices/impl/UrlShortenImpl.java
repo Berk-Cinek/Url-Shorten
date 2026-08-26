@@ -3,9 +3,14 @@ package com.berk.urlshorten.sevices.impl;
 import com.berk.urlshorten.domain.entities.UrlEntity;
 import com.berk.urlshorten.repository.UrlRepository;
 import com.berk.urlshorten.sevices.UrlShortenService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -19,6 +24,7 @@ public class UrlShortenImpl implements UrlShortenService {
     }
 
     @Override
+    @CachePut(value = "URl_CAHCE", key = "#result.id()")
     public UrlEntity save(UrlEntity urlEntity) {
         return urlRepository.save(urlEntity);
     }
@@ -29,11 +35,13 @@ public class UrlShortenImpl implements UrlShortenService {
     }
 
     @Override
+    @Cacheable(value = "URL_CACHE", key = "id")
     public Optional<UrlEntity> findOne(Long id) {
         return urlRepository.findById(id);
     }
 
     @Override
+    @CachePut(value = "URl_CAHCE", key = "#result.id()")
     public UrlEntity partialUpdate(Long id, UrlEntity urlEntity) {
         urlEntity.setId(id);
 
@@ -47,11 +55,19 @@ public class UrlShortenImpl implements UrlShortenService {
     }
 
     @Override
+    @CacheEvict(value = "URL_CACHE", key = "id")
     public void delete(Long id) {
         if (urlRepository.existsByUrlEntity_Id(id)){
-            throw new RuntimeException("cannot delete this UrlEntity");
-
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "cannot find entry with id:" + id);
+            // make this centralized
+        }else {
+            urlRepository.deleteById(id);
         }
+    }
+
+    @Override
+    public Boolean isExist(Long id) {
+        return urlRepository.existsById(id);
     }
 
 
