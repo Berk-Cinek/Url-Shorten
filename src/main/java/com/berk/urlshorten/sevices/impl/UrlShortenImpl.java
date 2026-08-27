@@ -24,7 +24,7 @@ public class UrlShortenImpl implements UrlShortenService {
     }
 
     @Override
-    @CachePut(value = "URl_CAHCE", key = "#result.id()")
+    @CachePut(value = "URL_CACHE", key = "#result.id()")
     public UrlEntity save(UrlEntity urlEntity) {
         return urlRepository.save(urlEntity);
     }
@@ -35,13 +35,13 @@ public class UrlShortenImpl implements UrlShortenService {
     }
 
     @Override
-    @Cacheable(value = "URL_CACHE", key = "id")
+    @Cacheable(value = "URL_CACHE", key = "#id")
     public Optional<UrlEntity> findOne(Long id) {
         return urlRepository.findById(id);
     }
 
     @Override
-    @CachePut(value = "URl_CAHCE", key = "#result.id()")
+    @CachePut(value = "URL_CACHE", key = "#result.id()")
     public UrlEntity partialUpdate(Long id, UrlEntity urlEntity) {
         urlEntity.setId(id);
 
@@ -55,7 +55,7 @@ public class UrlShortenImpl implements UrlShortenService {
     }
 
     @Override
-    @CacheEvict(value = "URL_CACHE", key = "id")
+    @CacheEvict(value = "URL_CACHE", key = "#id")
     public void delete(Long id) {
         if (urlRepository.existsByUrlEntity_Id(id)){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "cannot find entry with id:" + id);

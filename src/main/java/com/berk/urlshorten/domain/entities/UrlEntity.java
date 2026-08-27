@@ -1,8 +1,7 @@
 package com.berk.urlshorten.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import io.seruco.encoding.base62.Base62;
 
@@ -11,6 +10,9 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "url_entity")
 public class UrlEntity {
 
