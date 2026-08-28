@@ -32,7 +32,6 @@ public class UrlController {
         Page<UrlEntity> urls = urlShortenService.findAll(pageable);
         return urls.map(urlEntity ->modelMapper.map(urlEntity, UrlDto.class));
     }
-    //400 bad request
 
     @GetMapping(path = "/shorten/{shortUrl}")
     public ResponseEntity<UrlDto> listById(@PathVariable("shortUrl") String shortUrl){
@@ -58,5 +57,13 @@ public class UrlController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //one more of GET /shorten/abc123/stats
+    @GetMapping(path = "/shorten/{shortUrl}/stats")
+    public ResponseEntity<UrlDto> getStats(@PathVariable("shortUrl") String shortUrl){
+        return urlShortenService.findOne(shortUrl)
+                .map(urlEntity -> {
+                    UrlDto urlDto = modelMapper.map(urlEntity, UrlDto.class);
+                    return new ResponseEntity<>(urlDto, HttpStatus.OK);
+                })
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Url not found with shortUrl: " + shortUrl));
+    }
 }
