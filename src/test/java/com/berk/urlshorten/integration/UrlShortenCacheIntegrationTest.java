@@ -1,8 +1,10 @@
 package com.berk.urlshorten.integration;
 
+import com.berk.urlshorten.domain.dto.UrlDto;
 import com.berk.urlshorten.domain.entities.UrlEntity;
 import com.berk.urlshorten.repository.UrlRepository;
 import com.berk.urlshorten.sevices.UrlShortenService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,19 +51,32 @@ public class UrlShortenCacheIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @BeforeEach
+    void cleanUp(){
+        urlRepository.deleteAll();
+        Cache cache = cacheManager.getCache("URL_CACHE");
+        if (cache != null) {
+            cache.clear();
+        }
+    }
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     void findOneCachePopulate(){
         UrlEntity saved = urlRepository.save(UrlEntity.builder()
                         .url("https://example.com")
+                        .accessCount(0)
                         .build());
 
-        urlShortenService.findOne(saved.getId());
+        urlShortenService.findOne(saved.getShortURL());
+
+        UrlEntity found = urlShortenService.findOne(saved.getShortURL()).orElse(null);
+        System.out.println("findOne returned: " + found);
 
         Cache cache = cacheManager.getCache("URL_CACHE");
         assert cache != null;
-        Cache.ValueWrapper cached = cache.get(saved.getId());
+        Cache.ValueWrapper cached = cache.get(saved.getShortURL());
 
         assertThat(cached).isNotNull();
     }
@@ -69,13 +84,14 @@ public class UrlShortenCacheIntegrationTest {
     @Test
     void findOne_SecondCall_PopulatesCache(){
         UrlEntity saved = urlRepository.save(UrlEntity.builder()
-                        .url("https://example.com")
-                        .build());
+                .url("https://example.com")
+                .accessCount(0)
+                .build());
 
-        urlShortenService.findOne(saved.getId());
+        urlShortenService.findOne(saved.getShortURL());
         urlRepository.deleteById(saved.getId());
 
-        Optional<UrlEntity> secondCall = urlShortenService.findOne(saved.getId());
+        Optional<UrlEntity> secondCall = urlShortenService.findOne(saved.getShortURL());
 
         assertThat(secondCall).isPresent();
     }
@@ -84,13 +100,14 @@ public class UrlShortenCacheIntegrationTest {
     void delete_emptiesCache() {
         UrlEntity saved = urlRepository.save(UrlEntity.builder()
                 .url("https://example.com")
+                .accessCount(0)
                 .build());
 
-        urlShortenService.findOne(saved.getId()); // explicitly populate cache
+        urlShortenService.findOne(saved.getShortURL()); // explicitly populate cache
 
-        urlShortenService.delete(saved.getId());
+        urlShortenService.delete(saved.getShortURL());
 
-        Optional<UrlEntity> secondCall = urlShortenService.findOne(saved.getId());
+        Optional<UrlEntity> secondCall = urlShortenService.findOne(saved.getShortURL());
 
         assertThat(secondCall).isNotPresent();
     }
@@ -101,7 +118,7 @@ public class UrlShortenCacheIntegrationTest {
                 .url("https://example.com")
                 .build());
 
-        Optional<UrlEntity> call = urlShortenService.findOne(saved.getId());
+        Optional<UrlEntity> call = urlShortenService.findOne(saved.getShortURL());
 
         assertThat(call).isPresent();
     }
@@ -116,11 +133,11 @@ public class UrlShortenCacheIntegrationTest {
                 .url("https://Student.com")
                 .build();
 
-        urlShortenService.partialUpdate(saved.getId(), update);
+        urlShortenService.partialUpdate(saved.getShortURL(), update);
 
         Cache cache = cacheManager.getCache("URL_CACHE");
         assert cache != null;
-        Cache.ValueWrapper cached = cache.get(saved.getId());
+        Cache.ValueWrapper cached = cache.get(saved.getShortURL());
 
         assertThat(cached).isNotNull();
 

@@ -34,27 +34,27 @@ public class UrlController {
     }
     //400 bad request
 
-    @GetMapping(path = "/shorten/{id}")
-    public ResponseEntity<UrlDto> listById(@PathVariable("id") Long id){
-            return urlShortenService.findOne(id)
+    @GetMapping(path = "/shorten/{shortUrl}")
+    public ResponseEntity<UrlDto> listById(@PathVariable("shortUrl") String shortUrl){
+            return urlShortenService.findOne(shortUrl)
                 .map(urlEntity -> {
                     UrlDto urlDto =  modelMapper.map(urlEntity, UrlDto.class);
                     return new ResponseEntity<>(urlDto, HttpStatus.OK);
                 })
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Url not found with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Url not found with shortUrl: " + shortUrl));
         }
 
-    @PutMapping(path = "/shorten/{id}")
-    public ResponseEntity<UrlDto> updateById(@PathVariable("id") Long id, @RequestBody UrlDto urlDto){
+    @PutMapping(path = "/shorten/{shortUrl}")
+    public ResponseEntity<UrlDto> updateByShortCode(@PathVariable("shortUrl") String shortUrl, @RequestBody UrlDto urlDto){
 
         UrlEntity urlEntity = modelMapper.map(urlDto, UrlEntity.class);
-        UrlEntity updatedEntity = urlShortenService.partialUpdate(id, urlEntity);
+        UrlEntity updatedEntity = urlShortenService.partialUpdate(shortUrl, urlEntity);
         return new ResponseEntity<>(modelMapper.map(updatedEntity, UrlDto.class), HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/shorten/{id}")
-    public ResponseEntity<Void> deleteUrl(@PathVariable("id") Long id){
-        urlShortenService.delete(id);
+    @DeleteMapping(path = "/shorten/{shortUrl}")
+    public ResponseEntity<Void> deleteUrl(@PathVariable("shortUrl") String shortUrl){
+        urlShortenService.delete(shortUrl);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

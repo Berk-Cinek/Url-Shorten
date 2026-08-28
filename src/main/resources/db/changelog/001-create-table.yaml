@@ -33,6 +33,9 @@ databaseChangeLog:
               - column:
                   name: access_count
                   type: INTEGER
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
         - createSequence:
             sequenceName: url_sequence
             startValue: 1

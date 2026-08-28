@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import io.seruco.encoding.base62.Base62;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "url_entity")
-public class UrlEntity {
+public class UrlEntity implements Serializable {
 
     private static final Base62 BASE62 = Base62.createInstance();
 
@@ -30,17 +31,17 @@ public class UrlEntity {
     @Column(nullable = false)
     private String url;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "short_url")
     private String shortURL;
 
-    @Column
+    @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column
+    @Column(name = "access_count")
     private Integer accessCount;
 
     @PrePersist

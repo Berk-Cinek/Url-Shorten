@@ -12,11 +12,11 @@ public interface UrlShortenService {
 
     Page<UrlEntity> findAll(Pageable pageable);
 
-    Optional<UrlEntity> findOne(Long id);
+    Optional<UrlEntity> findOne(String ShortUrl);
 
-    UrlEntity partialUpdate(Long id, UrlEntity urlEntity);
+    UrlEntity partialUpdate(String shortUrl, UrlEntity urlEntity);
 
-    void delete(Long id);
+    void delete(String shortUrl);
 
     Boolean isExist(Long id);
 }

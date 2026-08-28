@@ -24,8 +24,9 @@ public class UrlShortenImpl implements UrlShortenService {
     }
 
     @Override
-    @CachePut(value = "URL_CACHE", key = "#result.id()")
+    @CachePut(value = "URL_CACHE", key = "#result.getShortURL()")
     public UrlEntity save(UrlEntity urlEntity) {
+        urlEntity.setAccessCount(0);
         return urlRepository.save(urlEntity);
     }
 
@@ -35,17 +36,16 @@ public class UrlShortenImpl implements UrlShortenService {
     }
 
     @Override
-    @Cacheable(value = "URL_CACHE", key = "#id")
-    public Optional<UrlEntity> findOne(Long id) {
-        return urlRepository.findById(id);
+    @Cacheable(value = "URL_CACHE", key = "#shortUrl", unless = "#result == null")
+    public Optional<UrlEntity> findOne(String shortUrl) {
+        return urlRepository.findByShortURL(shortUrl);
     }
 
     @Override
-    @CachePut(value = "URL_CACHE", key = "#result.id()")
-    public UrlEntity partialUpdate(Long id, UrlEntity urlEntity) {
-        urlEntity.setId(id);
+    @CachePut(value = "URL_CACHE", key = "#result.getShortURL()")
+    public UrlEntity partialUpdate(String shortUrl, UrlEntity urlEntity) {
 
-        return urlRepository.findById(id).map(existingUrlEntity ->{
+        return urlRepository.findByShortURL(shortUrl).map(existingUrlEntity ->{
                 Optional.ofNullable(urlEntity.getUrl()).ifPresent((existingUrlEntity::setUrl));
                 Optional.ofNullable(urlEntity.getShortURL()).ifPresent((existingUrlEntity::setShortURL));
                 existingUrlEntity.setAccessCount(existingUrlEntity.getAccessCount() + 1);
@@ -55,14 +55,13 @@ public class UrlShortenImpl implements UrlShortenService {
     }
 
     @Override
-    @CacheEvict(value = "URL_CACHE", key = "#id")
-    public void delete(Long id) {
-        if (urlRepository.existsByUrlEntity_Id(id)){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "cannot find entry with id:" + id);
-            // make this centralized
-        }else {
-            urlRepository.deleteById(id);
-        }
+    @CacheEvict(value = "URL_CACHE", key = "#shortUrl")
+    public void delete(String shortUrl) {
+        UrlEntity entity = urlRepository.findByShortURL(shortUrl)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "cannot find entry with shortUrl:" + shortUrl));
+
+        urlRepository.deleteById(entity.getId());
     }
 
     @Override

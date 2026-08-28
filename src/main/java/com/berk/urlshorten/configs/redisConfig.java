@@ -1,6 +1,7 @@
 package com.berk.urlshorten.configs;
 
 import com.berk.urlshorten.domain.dto.UrlDto;
+import com.berk.urlshorten.domain.entities.UrlEntity;
 import io.lettuce.core.support.caching.RedisCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,7 @@ public class redisConfig {
                 .entryTtl(Duration.ofMinutes(10))
                 .disableCachingNullValues()
                 .serializeValuesWith(RedisSerializationContext.SerializationPair
-                        .fromSerializer(new JacksonJsonRedisSerializer(UrlDto.class)));
+                        .fromSerializer(new JacksonJsonRedisSerializer(UrlEntity.class)));
 
         return RedisCacheManager
                 .builder(connectionFactory)
