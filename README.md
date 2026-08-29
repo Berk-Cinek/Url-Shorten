@@ -32,7 +32,7 @@ A URL shortener REST API built with Spring Boot. Stores mappings in PostgreSQL, 
 
 ### Prerequisites
 
-- Docker and Docker Compose
+- Docker
 - JDK 26 (only needed if running outside Docker)
 
 ### Run with Docker Compose (recommended)
